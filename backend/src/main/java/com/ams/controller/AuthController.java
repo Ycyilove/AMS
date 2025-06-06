@@ -41,20 +41,11 @@ public class AuthController {
     public Result<Map<String, Object>> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
             // 先验证用户是否存在且角色是否正确
-            User user = userService.getByUsername(loginDTO.getUsername());
-            System.out.println("user:"+user);
+            User user = userService.getByLoginDTO(loginDTO);
             if (user == null) {
                 return Result.error("不存在对应用户");
             }
-            if (!user.getRole().equals(loginDTO.getRole())) {
-                return Result.error("用户角色不正确");
-            }
-
-            // 调试：输出明文和加密串
-            System.out.println("明文密码: " + loginDTO.getPassword());
-            System.out.println("数据库加密串: " + user.getPassword());
-            System.out.println("BCrypt比对结果: " + passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()));
-
+            
             // 验证用户名和密码
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword())
